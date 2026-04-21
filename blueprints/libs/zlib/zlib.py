@@ -12,7 +12,7 @@ class subinfo(info.infoclass):
         self.parent.package.categoryInfo.platforms = CraftCore.compiler.Platforms.NotAndroid
 
     def setTargets(self):
-        for ver in ["1.3", "1.3.1"]:
+        for ver in ["1.3", "1.3.1", "1.3.2"]:
             self.targets[ver] = f"https://www.zlib.net/zlib-{ver}.tar.xz"
             self.targetInstSrc[ver] = f"zlib-{ver}"
         self.patchToApply["1.3"] = [
@@ -47,7 +47,7 @@ class subinfo(info.infoclass):
         self.description = "The zlib compression and decompression library"
         self.webpage = "https://www.zlib.net"
         self.releaseManagerId = 5303
-        self.defaultTarget = "1.3.1"
+        self.defaultTarget = "1.3.2"
 
     def setDependencies(self):
         self.runtimeDependencies["virtual/base"] = None
