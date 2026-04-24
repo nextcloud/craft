@@ -34,6 +34,18 @@ class subinfo(info.infoclass):
             # this allows using zlib in prebuilt libraries like gpg
             ("zlib-1.3.1-20240818.diff", 1),
         ]
+        self.patchToApply["1.3.2"] = [
+            ("zlib-1.2.12-20220404.diff", 1),
+            (
+                # don't conditonlessly define Z_HAVE_UNISTD_H
+                "zlib-1.2.12-20220503.diff",
+                1,
+            ),
+            # use the same dll name with mingw and msvc
+            # this allows using zlib in prebuilt libraries like gpg
+            ("zlib-1.3.1-20240818.diff", 1),
+        ]
+
 
         self.targetDigests["1.3"] = (
             ["8a9ba2898e1d0d774eca6ba5b4627a11e5588ba85c8851336eb38de4683050a7"],
