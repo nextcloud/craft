@@ -81,7 +81,6 @@ class subinfo(info.infoclass):
 
 if CraftCore.compiler.isWindows or CraftCore.compiler.isMacOS:
 
-
     class Package(CMakePackageBase):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
