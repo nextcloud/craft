@@ -36,7 +36,10 @@ class subinfo(info.infoclass):
             self.patchToApply["3.11.11"] += [(".msvc/patches", 1)]
 
         self.patchLevel["3.11.7"] = 3
-        self.patchLevel["3.11.11"] = 1
+        if CraftCore.compiler.isMSVC():
+            self.patchLevel["3.11.11"] = 2
+        else:
+            self.patchLevel["3.11.11"] = 1
 
         self.defaultTarget = "3.11.11"
 
@@ -85,7 +88,7 @@ if CraftCore.compiler.isMSVC():
             addLib("LZMA", "liblzma")
             addLib("SQLITE", "sqlite3")
             addLib("SSL", "libssl")
-            addLib("ZLIB", "zlib")
+            addLib("ZLIB", "zlib1")
             if not utils.configureFile(self.blueprintDir() / ".msvc/python_vcpkg.props.in", self.sourceDir() / "PCbuild/python_vcpkg.props", vars):
                 return False
             if not utils.configureFile(self.blueprintDir() / ".msvc/openssl.props.in", self.sourceDir() / "PCbuild/openssl.props", vars):
