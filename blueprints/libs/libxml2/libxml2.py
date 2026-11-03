@@ -1,4 +1,5 @@
 import info
+from Blueprints.CraftVersion import CraftVersion
 from CraftCore import CraftCore
 from Package.CMakePackageBase import CMakePackageBase
 from Utils import CraftHash
@@ -6,7 +7,7 @@ from Utils import CraftHash
 
 class subinfo(info.infoclass):
     def setTargets(self):
-        for ver in ["2.10.3", "2.12.7", "2.14.4", "2.14.5"]:
+        for ver in ["2.10.3", "2.12.7", "2.14.4", "2.14.5", "2.15.4"]:
             self.targets[ver] = f"https://download.gnome.org/sources/libxml2/{'.'.join(ver.split('.')[:-1])}/libxml2-{ver}.tar.xz"
             self.targetInstSrc[ver] = f"libxml2-{ver}"
         self.targetDigests["2.10.3"] = (["5d2cc3d78bec3dbe212a9d7fa629ada25a7da928af432c93060ff5c17ee28a9c"], CraftHash.HashAlgorithm.SHA256)
@@ -33,12 +34,16 @@ class subinfo(info.infoclass):
         self.svnTargets["master"] = "https://gitlab.gnome.org/GNOME/libxml2.git"
 
         self.description = "XML C parser and toolkit (runtime and applications)"
-        self.defaultTarget = "2.14.5"
+        self.targetDigests["2.15.4"] = (["98087fd181d9070724f3fbc65c7377db03038eb92bd882374daff44940138821"], CraftHash.HashAlgorithm.SHA256)
+        self.patchToApply["2.15.4"] = [("msvc-no-forced-static.diff", 1)]
+
+        self.defaultTarget = "2.15.4"
 
     def setDependencies(self):
         self.runtimeDependencies["virtual/base"] = None
         self.runtimeDependencies["libs/zlib"] = None
-        self.runtimeDependencies["libs/liblzma"] = None
+        if self.buildTarget != "master" and CraftVersion(self.buildTarget) < CraftVersion("2.15.0"):
+            self.runtimeDependencies["libs/liblzma"] = None
         self.runtimeDependencies["libs/iconv"] = None
         self.runtimeDependencies["libs/icu"] = None
 
@@ -49,9 +54,10 @@ class Package(CMakePackageBase):
         self.subinfo.options.configure.args += [
             "-DLIBXML2_WITH_PYTHON=OFF",
             f"-DLIBXML2_WITH_ICU={self.subinfo.options.isActive('libs/icu').asOnOff}",
-            f"-DLIBXML2_WITH_LZMA={self.subinfo.options.isActive('libs/liblzma').asOnOff}",
             # we use the system iconv on macOS
             f"-DLIBXML2_WITH_ICONV={(self.subinfo.options.isActive('libs/iconv') or CraftCore.compiler.isMacOS).asOnOff}",
         ]
+        if self.subinfo.buildTarget != "master" and CraftVersion(self.subinfo.buildTarget) < CraftVersion("2.15.0"):
+            self.subinfo.options.configure.args += [f"-DLIBXML2_WITH_LZMA={self.subinfo.options.isActive('libs/liblzma').asOnOff}"]
         if CraftCore.compiler.isAndroid:
             self.subinfo.options.configure.args += ["-DLIBXML2_WITH_PROGRAMS=OFF", "-DLIBXML2_WITH_TESTS=OFF"]
