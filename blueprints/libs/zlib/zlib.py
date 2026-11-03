@@ -45,7 +45,9 @@ class subinfo(info.infoclass):
             ("1.3.2/zlib-1.3.2-0003-special-handling-of-lib-prefix-for-mingw.patch", 1),
             ("1.3.2/zlib-1.3.2-0004-do-not-set-library-debug-postfix.patch", 1),
             ("1.3.2/zlib-1.3.2-0005-chore-really-goes-back-to-zlib1.dll-name.patch", 1),
+            ("1.3.2/zlib-1.3.2-gzwrite.patch", 1),
         ]
+        self.patchLevel["1.3.2"] = 2
 
         if CraftCore.compiler.isMSVC():
             self.patchLevel["1.3.2"] = 1
