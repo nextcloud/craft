@@ -78,7 +78,7 @@ if CraftCore.compiler.isMSVC():
             addLib("CRYPTO", "libcrypto")
             addLib("EXPAT", "libexpat")
             addLib("FFI", "ffi")
-            addLib("LZMA", "liblzma")
+            addLib("LZMA", "lzma")
             addLib("SQLITE", "sqlite3")
             addLib("SSL", "libssl")
             addLib("ZLIB", "zlib")
