@@ -57,6 +57,7 @@ class subinfo(info.infoclass):
             "3.5.6",
             "3.5.7",
             "3.5.8",
+            "3.5.9",
             "3.6.1",
             "3.6.2",
             "3.6.3",
@@ -66,6 +67,7 @@ class subinfo(info.infoclass):
             "4.0.1",
             "4.0.2",
             "4.0.3",
+            "4.1.0",
         ]:
             self.targets[ver] = f"https://openssl.org/source/openssl-{ver}.tar.gz"
             self.targetInstSrc[ver] = f"openssl-{ver}"
