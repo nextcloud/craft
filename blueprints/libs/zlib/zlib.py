@@ -35,6 +35,16 @@ class subinfo(info.infoclass):
             ("zlib-1.3.1-20240818.diff", 1),
         ]
 
+        self.patchToApply["1.3.2"] = [
+            ("1.3.2/zlib-1.3.2-0001-don-t-conditonlessly-define-Z_HAVE_UNISTD_H.patch", 1),
+            ("1.3.2/zlib-1.3.2-0002-zlib-library-name-needs-to-be-zlib-on-Windows-for-co.patch", 1),
+            ("1.3.2/zlib-1.3.2-0003-special-handling-of-lib-prefix-for-mingw.patch", 1),
+            ("1.3.2/zlib-1.3.2-0004-do-not-set-library-debug-postfix.patch", 1),
+            ("1.3.2/zlib-1.3.2-0005-chore-really-goes-back-to-zlib1.dll-name.patch", 1),
+            ("1.3.2/zlib-1.3.2-gzwrite.patch", 1),
+        ]
+        self.patchLevel["1.3.2"] = 2
+
         self.targetDigests["1.3"] = (
             ["8a9ba2898e1d0d774eca6ba5b4627a11e5588ba85c8851336eb38de4683050a7"],
             CraftHash.HashAlgorithm.SHA256,
@@ -57,7 +67,7 @@ class subinfo(info.infoclass):
         self.runtimeDependencies["virtual/base"] = None
 
 
-if CraftCore.compiler.isWindows:
+if CraftCore.compiler.isWindows or CraftCore.compiler.isMacOS:
 
     class Package(CMakePackageBase):
         def __init__(self, **kwargs):
