@@ -40,12 +40,14 @@ class subinfo(info.infoclass):
         ]
 
         self.patchToApply["1.3.2"] = [
-            ("zlib-1.3.2-0001-don-t-conditonlessly-define-Z_HAVE_UNISTD_H.patch", 1),
-            ("zlib-1.3.2-0002-zlib-library-name-needs-to-be-zlib-on-Windows-for-co.patch", 1),
-            ("zlib-1.3.2-0003-special-handling-of-lib-prefix-for-mingw.patch", 1),
-            ("zlib-1.3.2-0004-do-not-set-library-debug-postfix.patch", 1),
-            ("zlib-1.3.2-0005-chore-really-goes-back-to-zlib1.dll-name.patch", 1),
+            ("1.3.2/zlib-1.3.2-0001-don-t-conditonlessly-define-Z_HAVE_UNISTD_H.patch", 1),
+            ("1.3.2/zlib-1.3.2-0002-zlib-library-name-needs-to-be-zlib-on-Windows-for-co.patch", 1),
+            ("1.3.2/zlib-1.3.2-0003-special-handling-of-lib-prefix-for-mingw.patch", 1),
+            ("1.3.2/zlib-1.3.2-0004-do-not-set-library-debug-postfix.patch", 1),
+            ("1.3.2/zlib-1.3.2-0005-chore-really-goes-back-to-zlib1.dll-name.patch", 1),
+            ("1.3.2/zlib-1.3.2-gzwrite.patch", 1),
         ]
+        self.patchLevel["1.3.2"] = 2
 
         if CraftCore.compiler.isMSVC():
             self.patchLevel["1.3.2"] = 1
@@ -73,7 +75,6 @@ class subinfo(info.infoclass):
 
 
 if CraftCore.compiler.isWindows or CraftCore.compiler.isMacOS:
-
 
     class Package(CMakePackageBase):
         def __init__(self, **kwargs):
