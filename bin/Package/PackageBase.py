@@ -5,6 +5,7 @@ import dataclasses
 import json
 import os
 from pathlib import Path
+from time import monotonic
 
 import utils
 from Blueprints.CraftPackageObject import BlueprintException
@@ -83,6 +84,31 @@ class PackageBase(CraftBase):
     def fetchBinary(self, downloadRetriesLeft=3) -> bool:
         if self.subinfo.options.package.disableBinaryCache:
             return False
+
+        started = monotonic()
+        elapsed = {}
+
+        def timed(phase, operation, *args, **kwargs):
+            before = monotonic()
+            try:
+                return operation(*args, **kwargs)
+            finally:
+                elapsed[phase] = elapsed.get(phase, 0.0) + (monotonic() - before)
+
+        try:
+            return self._fetchBinary(downloadRetriesLeft, timed)
+        finally:
+            if elapsed:
+                total = monotonic() - started
+                download = elapsed.get("download", 0.0)
+                extract = elapsed.get("extract", 0.0)
+                CraftCore.log.info(
+                    f"Binary cache timings for {self}: download {download:.3f}s, extraction {extract:.3f}s, "
+                    f"remaining {total - download - extract:.3f}s (checksum {elapsed.get('checksum', 0.0):.3f}s, "
+                    f"qmerge {elapsed.get('qmerge', 0.0):.3f}s), total {total:.3f}s"
+                )
+
+    def _fetchBinary(self, downloadRetriesLeft, timed) -> bool:
         for url in [self.cacheLocation()] + self.cacheRepositoryUrls():
             CraftCore.log.debug(f"Trying to restore {self} from cache: {url}")
             if url == self.cacheLocation():
@@ -142,7 +168,9 @@ class PackageBase(CraftBase):
                         # try it up to 3 times
                         retries = 3
                         while True:
-                            if GetFiles.getFile(
+                            if timed(
+                                "download",
+                                GetFiles.getFile,
                                 fUrl,
                                 localArchiveAbsPath.parent,
                                 localArchiveAbsPath.name,
@@ -160,7 +188,9 @@ class PackageBase(CraftBase):
                     continue
                 # file exist locally was downloaded or already existed
                 files[type] = localArchiveAbsPath
-                if not CraftHash.checkFilesDigests(
+                if not timed(
+                    "checksum",
+                    CraftHash.checkFilesDigests,
                     localArchiveAbsPath.parent,
                     [localArchiveAbsPath.name],
                     digests=fileObject.checksum,
@@ -173,7 +203,7 @@ class PackageBase(CraftBase):
                         [("Yes", True), ("No", False)],
                         default="Yes",
                     ):
-                        return utils.deleteFile(localArchiveAbsPath) and self.fetchBinary(downloadRetriesLeft=downloadRetriesLeft - 1)
+                        return utils.deleteFile(localArchiveAbsPath) and self._fetchBinary(downloadRetriesLeft - 1, timed)
                     if createingCache:
                         raise BlueprintException(msg, self.package)
                     return False
@@ -191,9 +221,9 @@ class PackageBase(CraftBase):
                 FileType.Debug: self.symbolsImageDir(),
             }
             for type, localArchivePath in files.items():
-                if not utils.cleanDirectory(dest[type]) or not utils.unpackFile(localArchivePath.parent, localArchivePath.name, dest[type]):
+                if not utils.cleanDirectory(dest[type]) or not timed("extract", utils.unpackFile, localArchivePath.parent, localArchivePath.name, dest[type]):
                     return False
-            if not (self.internalPostInstall() and self.postInstall() and self.qmerge() and self.internalPostQmerge() and self.postQmerge()):
+            if not (self.internalPostInstall() and self.postInstall() and timed("qmerge", self.qmerge) and self.internalPostQmerge() and self.postQmerge()):
                 return False
             return True
         return False
